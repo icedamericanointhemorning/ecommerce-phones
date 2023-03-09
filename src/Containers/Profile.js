@@ -5,6 +5,7 @@ import { setProfile } from "../actions/Profile";
 import { browserHistory } from "react-router";
 import { Link } from "react-router";
 import btoa from "btoa";
+import { identity } from "ramda";
 
 class Profile extends React.Component {
   constructor(props) {
@@ -24,7 +25,6 @@ class Profile extends React.Component {
     this.onPasswordInputChange = this.onPasswordInputChange.bind(this);
     this.onFirstNameInputChange = this.onFirstNameInputChange.bind(this);
     this.onLastNameInputChange = this.onLastNameInputChange.bind(this);
-
   }
 
   onUsernameInputChange = (e) => {
@@ -57,13 +57,23 @@ class Profile extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    if (!this.state.usernameValue 
-      || !this.state.passwordValue
-      || !this.state.firstNameValue
-      || !this.state.lastNameValue) {
+
+    if (
+      !this.state.usernameValue ||
+      !this.state.passwordValue ||
+      !this.state.firstNameValue ||
+      !this.state.lastNameValue
+    ) {
       this.setState({
         message: "All fields are required",
       });
+
+      identity(userId, {
+        userName: this.state.usernameValue,
+        firstName: this.state.firstNameValue,
+        lastName: this.state.lastNameValue,
+      });
+
       return;
     }
 
@@ -84,7 +94,6 @@ class Profile extends React.Component {
     });
 
     browserHistory.push("/");
-
   };
 
   render() {
@@ -95,7 +104,6 @@ class Profile extends React.Component {
             <div className="col-md-12">
               <div>
                 <form onSubmit={this.handleSubmit}>
-
                   {!this.state.isRegisteredValue && (
                     <div className="form-row">
                       <div className="form-group col-md-3">
@@ -121,7 +129,6 @@ class Profile extends React.Component {
                     </div>
                   )}
 
-                  
                   {!this.state.isLoggedIn && (
                     <div className="form-row">
                       <div className="form-group col-md-3">
@@ -145,7 +152,7 @@ class Profile extends React.Component {
                       </div>
                     </div>
                   )}
-                  
+
                   {!this.state.isLoggedInValue && (
                     <div className="form-row">
                       <div className="form-group col-md-3">
@@ -160,7 +167,6 @@ class Profile extends React.Component {
                       </div>
                     </div>
                   )}
-
                 </form>
                 <Link className="btn btn-default" to="/">
                   <span className="glyphicon glyphicon-circle-arrow-left" />
@@ -178,7 +184,22 @@ class Profile extends React.Component {
 const mapStateToProps = (state) => getProfile(state);
 
 const mapDispatchToProps = (dispatch) => ({
-  setProfile: (id) => dispatch(setProfile(id)),
+  setProfile: (id) => {
+    dispatch(setProfile(id));
+    if (id.isLoggedIn == false) {
+      analytics.track("User Registred", {
+        username: id.username,
+        firstName: id.firstName,
+        lastName: id.lastName,
+      });
+    } else {
+      analytics.identify(id.userId, {
+        username: id.username,
+        firstName: id.firstName,
+        lastName: id.lastName,
+      });
+    }
+  },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);

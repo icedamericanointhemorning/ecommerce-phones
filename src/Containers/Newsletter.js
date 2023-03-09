@@ -16,6 +16,13 @@ class Newsletter extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     alert("Thank you for subscribing!");
+    const emailValue = e.target[0].value;
+    this.setState({
+      emailValue,
+    });
+    analytics.track("Newsletter Subscribed", {
+      email: emailValue,
+    });
   };
 
   onNewsletterInputChange = (e) => {

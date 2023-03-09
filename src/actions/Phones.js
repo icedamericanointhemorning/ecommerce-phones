@@ -4,7 +4,12 @@ import {
   fetchPhoneById as fetchPhoneByIdApi,
   fetchCategories as fetchCategoriesApi,
 } from "../api/fetchPhones";
-import { getRenderedPhonesLength } from "../selectors/Phones";
+import BasketCart from "../Containers/BasketCart";
+import {
+  getRenderedPhonesLength,
+  getTotalBasketCount,
+  getTotalBasketPrice,
+} from "../selectors/Phones";
 
 export const applyDiscount = (invertedDiscount, code) => (dispatch) => {
   dispatch({
@@ -127,12 +132,16 @@ export const cleanBasket = () => (dispatch) => {
   });
 };
 
-export const basketCheckout = (phones) => (dispatch, getState) => {
+export const basketCheckout = (phones, totalPrice) => (dispatch, getState) => {
   const { code: coupon, invertedDiscount } = getState().Coupon;
   const revenue = phones.reduce(
     (a, b) => a + (b.price * invertedDiscount || 0),
     0
   );
 
+  analytics.track("Checkout Completed", {
+    basket: phones,
+    total: totalPrice,
+  });
   alert(JSON.stringify(phones));
 };

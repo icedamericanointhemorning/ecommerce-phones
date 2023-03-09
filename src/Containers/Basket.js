@@ -43,7 +43,14 @@ const Basket = ({
                   <td>
                     <span
                       className="glyphicon glyphicon-remove"
-                      onClick={() => removePhoneFromBasket(phone.id)}
+                      onClick={() =>
+                        removePhoneFromBasket(
+                          phone.id,
+                          phone.name,
+                          phone.price,
+                          phone.description
+                        )
+                      }
                     ></span>
                   </td>
                 </tr>
@@ -74,7 +81,7 @@ const Basket = ({
             </button>
             <button
               className="btn btn-success"
-              onClick={() => basketCheckout(phones)}
+              onClick={() => basketCheckout(phones, totalPrice)}
             >
               <span className="glyphicon glyphicon-envelope" />
               Checkout
@@ -107,9 +114,19 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  removePhoneFromBasket: (id) => dispatch(removePhoneFromBasket(id)),
-  cleanBasket: () => dispatch(cleanBasket()),
-  basketCheckout: (phones) => dispatch(basketCheckout(phones)),
+  removePhoneFromBasket: (id, name, price, description) => {
+    dispatch(removePhoneFromBasket(id));
+    analytics.track("Product Removed", {
+      id: id,
+      name: name,
+      price: price,
+      description: description,
+    });
+  },
+  cleanBasket: () => dispatch(cleanBasket(), analytics.track("Cart Emptied")),
+
+  basketCheckout: (phones, totalPrice) =>
+    dispatch(basketCheckout(phones, totalPrice)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Basket);

@@ -22,6 +22,12 @@ export const fetchPhoneById = async (id) => {
     console.log("Id in api fetchPhones ", id);
     const phone = R.find(R.propEq("id", id), phones);
     resolve(phone);
+    //console.log(phone);
+    analytics.track("Product Viewed", {
+      id: phone.id,
+      name: phone.name,
+      price: phone.price,
+    });
   });
 };
 

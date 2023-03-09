@@ -10,6 +10,12 @@ class Phone extends React.Component {
   componentDidMount = () => {
     window.analytics.page();
     this.props.fetchPhoneById(this.props.params.id);
+    //console.log(this.props.phone.name);
+    // analytics.track("Product Viewed", {
+    //id: this.props.params.id,
+    //name: this.props.phone.name,
+    //price: this.props.phone.price,
+    // });
   };
 
   renderFields = () => {
@@ -78,7 +84,14 @@ class Phone extends React.Component {
         <button
           type="button"
           className="btn btn-success btn-block"
-          onClick={() => addPhoneToBasket(phone.id)}
+          onClick={() =>
+            addPhoneToBasket(
+              phone.id,
+              phone.name,
+              phone.price,
+              phone.description
+            )
+          }
         >
           Add To Cart
         </button>
@@ -105,8 +118,14 @@ const mapDispatchtoProps = (dispatch) => ({
   fetchPhoneById: (id) => {
     dispatch(fetchPhoneById(id));
   },
-  addPhoneToBasket: (id) => {
+  addPhoneToBasket: (id, name, price, description) => {
     dispatch(addPhoneToBasket(id));
+    analytics.track("Cart Added", {
+      id: id,
+      name: name,
+      price: price,
+      description: description,
+    });
   },
 });
 

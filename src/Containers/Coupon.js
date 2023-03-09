@@ -22,6 +22,9 @@ class Coupon extends React.Component {
         couponCode: this.state.couponCode,
         message: "10% discount applied",
       });
+      analytics.track("Coupon Used", {
+        coupon: this.state.couponCode,
+      });
       this.props.applyDiscount(0.9, this.state.couponCode);
     } else
       this.setState({
